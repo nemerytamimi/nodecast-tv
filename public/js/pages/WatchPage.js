@@ -684,24 +684,7 @@ class WatchPage {
 
     toggleFullscreen() {
         const container = document.querySelector('.watch-video-section');
-        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-
-        if (isFullscreen) {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        } else {
-            if (container?.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container?.webkitRequestFullscreen) {
-                container.webkitRequestFullscreen();
-            } else if (this.video?.webkitEnterFullscreen) {
-                // iOS Safari: use native video fullscreen
-                this.video.webkitEnterFullscreen();
-            }
-        }
+        Fullscreen.toggle(container, this.video);
     }
 
     async togglePictureInPicture() {
@@ -1025,8 +1008,8 @@ class WatchPage {
                 this.showOverlay();
                 break;
             case 'Escape':
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
+                if (Fullscreen.isActive(this.video)) {
+                    Fullscreen.exit(this.video);
                 } else {
                     this.goBack();
                 }
