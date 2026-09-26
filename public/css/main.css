@@ -91,7 +91,19 @@ body {
   overflow: hidden;
   /* Prevent pull-to-refresh and overscroll bounce on mobile */
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * App shell: the document itself never scrolls - only the lists/pages inside it.
+ * iOS Safari ignores overflow:hidden on body for touch, so if the shell is even a
+ * few pixels taller than the visible area it scrolls/bounces the whole page and
+ * steals the swipe from the list under the finger. Pinning body to the viewport
+ * prevents that.
+ */
+body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
 }
 
 /* Prevent text selection on touch devices (improves UX) */
@@ -116,12 +128,54 @@ body {
 #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  /* fallback */
-  height: 100dvh;
-  /* dynamic viewport height for modern browsers */
-  height: -webkit-fill-available;
-  /* iOS Safari fallback */
+  /* Fill the pinned body (= the visible viewport, including iOS toolbar changes) */
+  height: 100%;
+}
+
+/* Touch devices: list items should never block panning, and taps respond immediately */
+@media (hover: none) {
+
+  .channel-item,
+  .group-header,
+  .movie-card,
+  .series-card,
+  .dashboard-card,
+  .channel-tile,
+  .epg-program,
+  .epg-channel-info,
+  .episode-item,
+  .source-item {
+    touch-action: manipulation;
+  }
+
+  /* Hover lift effects make cards jump under the finger while scrolling */
+  .movie-card:hover,
+  .series-card:hover,
+  .dashboard-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Every in-app scroller: momentum scrolling, and don't chain the swipe to the page */
+.channel-list,
+.movies-grid,
+.series-grid,
+.series-details,
+.epg-grid,
+.epg-scroll-container,
+.settings-container,
+.watch-page,
+.modal-body,
+#page-home {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Horizontal rows: keep sideways swipes in the row, but let vertical swipes reach the page */
+.horizontal-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 /* Typography */
@@ -4695,6 +4749,13 @@ kbd {
 
   #page-series {
     position: relative;
+  }
+
+  /* The series grid sits inside a wrapper, which must pass the height down */
+  .series-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .movies-grid,
