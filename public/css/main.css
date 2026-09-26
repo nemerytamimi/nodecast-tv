@@ -220,40 +220,6 @@ h4 {
   gap: var(--space-xs);
 }
 
-/* Mobile Menu Toggle Button */
-.mobile-menu-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  z-index: 110;
-}
-
-.mobile-menu-toggle span {
-  width: 100%;
-  height: 2px;
-  background: var(--color-text-primary);
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.mobile-menu-toggle.active span:nth-child(1) {
-  transform: rotate(45deg) translate(7px, 7px);
-}
-
-.mobile-menu-toggle.active span:nth-child(2) {
-  opacity: 0;
-}
-
-.mobile-menu-toggle.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -7px);
-}
-
 .nav-link {
   display: flex;
   align-items: center;
@@ -277,6 +243,18 @@ h4 {
 
 .nav-icon {
   font-size: 1.1rem;
+}
+
+.nav-link,
+.brand-text {
+  white-space: nowrap;
+}
+
+/* Tablets / narrow desktop windows: icon-only top navigation */
+@media (min-width: 769px) and (max-width: 1000px) {
+  .navbar-menu .nav-link span:not(.nav-icon) {
+    display: none;
+  }
 }
 
 /* =====================================================
@@ -930,10 +908,11 @@ video::cue {
   bottom: 80px;
 }
 
-/* Override iOS inline --vh height while fullscreen */
+/* Always fill the screen while fullscreen */
 .video-container:fullscreen,
 .video-container:-webkit-full-screen {
   height: 100% !important;
+  aspect-ratio: auto !important;
 }
 
 /* Fullscreen mode for VOD watch section - drop navbar offset and min-height */
@@ -2018,105 +1997,12 @@ kbd {
     --epg-sidebar-width: 180px;
   }
 
-  /* Navigation - Hide text labels, show only icons */
-  .navbar {
-    padding: 0 var(--space-md);
-  }
-
-  .navbar-menu {
-    flex: 1;
-    justify-content: space-around;
-    gap: 0;
-  }
-
-  /* Hide nav link text on mobile, but keep Now Playing visible */
-  .navbar-menu .nav-link span:not(.nav-icon) {
-    display: none;
-  }
-
-  .nav-link {
-    padding: var(--space-sm);
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .nav-icon {
-    font-size: 1.4rem;
-  }
-
-  /* Brand - Simplify on tablet */
-  .brand-text {
-    font-size: 1.25rem;
-  }
-
-  /* Home Layout - Full screen video with drawer */
-  .home-layout {
-    flex-direction: row;
-  }
-
-  /* Show floating channel toggle button */
-  .channel-toggle-btn {
-    display: flex;
-  }
-
-  /* Channel sidebar becomes a slide-out drawer */
-  .channel-sidebar {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    bottom: 0;
-    width: var(--sidebar-width);
-    height: auto;
-    border-right: 1px solid var(--color-border);
-    border-bottom: none;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 90;
-    box-shadow: var(--shadow-lg);
-    visibility: hidden;
-  }
-
-  .channel-sidebar.active {
-    transform: translateX(0);
-    visibility: visible;
-  }
-
-  /* Overlay behind drawer */
-  .channel-sidebar-overlay {
-    display: none;
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 80;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .channel-sidebar-overlay.active {
-    display: block;
-    opacity: 1;
-  }
-
-  /* Video player takes full width */
-  .player-section {
-    width: 100%;
-  }
-
   .sidebar-header {
     padding: var(--space-sm) var(--space-md);
   }
 
   .sidebar-controls {
     flex-wrap: wrap;
-  }
-
-  /* Video Player */
-  .player-section {
-    flex: 1;
-    min-height: 0;
   }
 
   /* Now Playing Overlay - Stack vertically */
@@ -2164,14 +2050,6 @@ kbd {
     justify-content: center;
   }
 
-  .epg-grid {
-    height: calc(100vh - var(--navbar-height) - 120px);
-  }
-
-  .epg-channel-info {
-    width: var(--epg-sidebar-width);
-  }
-
   /* Movies & Series */
   .movies-header,
   .series-header {
@@ -2193,26 +2071,6 @@ kbd {
   .series-controls .search-wrapper {
     flex: 1;
     min-width: 140px;
-  }
-
-  .movies-grid,
-  .series-grid {
-    padding: var(--space-md);
-    gap: var(--space-md);
-    height: calc(100vh - var(--navbar-height) - 140px);
-  }
-
-  .movie-card,
-  .series-card {
-    flex: 0 0 140px;
-    width: 140px;
-  }
-
-  .movie-poster,
-  .series-poster,
-  .series-card .series-poster {
-    width: 140px;
-    height: 210px;
   }
 
   /* Settings */
@@ -2274,91 +2132,6 @@ kbd {
 
   body {
     font-size: 13px;
-  }
-
-  /* Navigation - Compact with hamburger menu */
-  .navbar {
-    padding: 0 var(--space-sm);
-    height: 52px;
-  }
-
-  .logo {
-    font-size: 1.5rem;
-  }
-
-  .brand-text {
-    font-size: 1.1rem;
-  }
-
-  /* Show mobile menu toggle */
-  .mobile-menu-toggle {
-    display: flex;
-  }
-
-  /* Mobile dropdown menu */
-  .navbar-menu {
-    position: fixed;
-    top: 52px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--glass-border);
-    padding: 0;
-    gap: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease, padding 0.3s ease;
-    z-index: 100;
-    visibility: hidden;
-  }
-
-  .navbar-menu.active {
-    max-height: 400px;
-    padding: var(--space-sm) 0;
-    box-shadow: var(--shadow-lg);
-    visibility: visible;
-  }
-
-  .nav-link {
-    padding: var(--space-md) var(--space-lg);
-    width: 100%;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--space-md);
-    border-radius: 0;
-  }
-
-  .nav-link span:not(.nav-icon) {
-    display: inline !important;
-  }
-
-  .nav-icon {
-    font-size: 1.3rem;
-  }
-
-  /* Hide "TV" from brand on very small screens */
-  .brand-accent {
-    display: none;
-  }
-
-  /* Channel Sidebar - Drawer on mobile */
-  .channel-sidebar {
-    width: 85%;
-    max-width: 320px;
-  }
-
-  .channel-toggle-btn {
-    top: var(--space-sm);
-    left: var(--space-sm);
-    padding: var(--space-xs) var(--space-sm);
-    font-size: 0.875rem;
-  }
-
-  .channel-toggle-btn .icon {
-    width: 1.1em;
-    height: 1.1em;
   }
 
   .sidebar-header {
@@ -2427,7 +2200,6 @@ kbd {
   }
 
   .epg-channel-info {
-    width: 140px;
     padding: var(--space-xs);
   }
 
@@ -2720,14 +2492,6 @@ kbd {
 
 /* Landscape orientation adjustments for phones */
 @media (max-width: 896px) and (orientation: landscape) {
-  .channel-sidebar {
-    width: 280px;
-  }
-
-  .navbar-menu {
-    gap: 4px;
-  }
-
   .now-playing-overlay {
     bottom: 10px;
     padding: var(--space-xs) var(--space-sm);
@@ -4531,19 +4295,6 @@ kbd {
   }
 }
 
-/* Mobile responsive - show in dropdown menu */
-@media (max-width: 768px) {
-  .now-playing-indicator {
-    width: calc(100% - 32px);
-    max-width: none;
-    margin: 0 16px var(--space-sm) 16px;
-    padding: 10px 16px;
-    font-size: 13px;
-    border-radius: var(--radius-md);
-    justify-content: center;
-  }
-}
-
 /* =====================================================
    Home Dashboard Styles
    ===================================================== */
@@ -4856,5 +4607,829 @@ kbd {
   .tile-name {
     font-size: 0.7rem;
     max-width: 70px;
+  }
+}
+/* =====================================================
+   Mobile Experience
+   - Portrait phones: slim top bar + bottom tab bar
+   - Landscape phones: left navigation rail, full-height content
+   ===================================================== */
+
+.navbar-actions {
+  display: none;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.nav-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  background: transparent;
+}
+
+.nav-action.active {
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.nav-action .nav-icon {
+  display: flex;
+  font-size: 1.3rem;
+}
+
+/* ---------- Shared phone rules (portrait + landscape) ---------- */
+@media (max-width: 768px),
+(orientation: landscape) and (max-height: 500px) {
+
+  /* A blurred navbar would become the containing block of the fixed tab bar */
+  .navbar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+  }
+
+  .navbar-actions {
+    display: flex;
+  }
+
+  /* Desktop-only affordances */
+  .sidebar-collapse-btn,
+  .watch-scroll-hint {
+    display: none !important;
+  }
+
+  /* Series details replace the list header to give episodes more room */
+  #page-series:has(.series-details:not(.hidden)) .series-header {
+    display: none;
+  }
+
+  /* Settings + logout move to the compact actions area */
+  .navbar-menu .nav-link[data-page="settings"],
+  .navbar-menu #logout-btn {
+    display: none;
+  }
+
+  .nav-link {
+    min-height: 0;
+  }
+
+  .nav-link:hover {
+    background: transparent;
+  }
+
+  /* Pages: header + one scrolling area that fills the remaining space */
+  #page-movies.active,
+  #page-series.active,
+  #page-guide.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #page-series {
+    position: relative;
+  }
+
+  .movies-grid,
+  .series-grid,
+  .epg-grid {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  .settings-container {
+    height: 100%;
+  }
+
+  /* Poster grids: responsive columns instead of fixed-width cards */
+  .movies-grid,
+  .series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    /* Cards clip overflow, so rows must size to their full content */
+    grid-auto-rows: max-content;
+    gap: 10px;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+    justify-content: stretch;
+  }
+
+  .movie-card,
+  .series-card {
+    width: auto;
+    flex: none;
+    min-width: 0;
+  }
+
+  .movie-poster,
+  .series-poster,
+  .series-card .series-poster {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .movie-poster .favorite-btn,
+  .series-poster .favorite-btn {
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .movie-info,
+  .series-info {
+    padding: 6px var(--space-sm) var(--space-sm);
+  }
+
+  .movie-title,
+  .series-title {
+    font-size: 0.8rem;
+  }
+
+  /* Compact page headers */
+  .movies-header,
+  .series-header,
+  .guide-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .movies-header h2,
+  .series-header h2,
+  .guide-header h2 {
+    display: none;
+  }
+
+  /* Row 1: source + category, row 2: search + favorites */
+  .movies-controls,
+  .series-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .movies-controls .source-select,
+  .series-controls .source-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .movies-controls .source-select:nth-of-type(2),
+  .series-controls .source-select:nth-of-type(2) {
+    grid-column: 2 / 4;
+  }
+
+  .movies-controls .search-wrapper,
+  .series-controls .search-wrapper {
+    grid-column: 1 / 3;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .guide-controls {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .guide-controls .source-select {
+    grid-column: 1 / 2;
+    min-width: 0;
+    max-width: 150px;
+  }
+
+  .guide-controls .search-wrapper {
+    grid-column: 2 / 4;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .guide-date {
+    text-align: center;
+  }
+
+  .source-select,
+  .search-input {
+    min-height: 36px;
+    font-size: 16px;
+    /* 16px prevents iOS from zooming into focused inputs */
+  }
+
+  .source-select {
+    font-size: 0.85rem;
+  }
+
+  /* EPG: narrower sticky channel column */
+  :root {
+    --epg-sidebar-width: 132px;
+  }
+
+  /* Single scroller that fills the space under the header */
+  .epg-grid {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .epg-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .epg-scroll-container {
+    flex: 1;
+    min-height: 0;
+    max-height: none !important;
+  }
+
+  .epg-channel-info {
+    gap: 4px;
+    padding: var(--space-xs);
+  }
+
+  .epg-channel-info .favorite-btn {
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  .epg-channel-name {
+    font-size: 0.75rem;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  /* Player controls: compact overlay that fits small players */
+  .watch-top-bar {
+    padding: var(--space-sm) var(--space-md);
+    padding-top: calc(var(--space-sm) + var(--safe-area-inset-top));
+    gap: var(--space-sm);
+  }
+
+  .watch-back-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .watch-title,
+  .watch-title-overlay {
+    font-size: 1rem;
+  }
+
+  .watch-bottom-bar {
+    padding: var(--space-xs) var(--space-md) var(--space-sm);
+  }
+
+  .watch-progress-container {
+    margin-bottom: 2px;
+  }
+
+  .watch-time {
+    font-size: 0.75rem;
+    min-width: 40px;
+  }
+
+  .watch-controls {
+    gap: 2px;
+    justify-content: space-between;
+  }
+
+  .watch-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .watch-btn-lg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .watch-center-play {
+    width: 64px;
+    height: 64px;
+  }
+
+  .watch-center-play .icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Phones use hardware volume buttons */
+  .watch-volume {
+    display: none;
+  }
+
+  /* Menus opened from the control bar: keep on screen and scrollable */
+  .watch-captions-menu,
+  .player-overflow-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+    max-width: calc(100vw - 32px);
+  }
+
+  .captions-option,
+  .overflow-menu-item {
+    min-height: 44px;
+  }
+
+  .watch-video-section:fullscreen,
+  .watch-video-section:-webkit-full-screen {
+    aspect-ratio: auto;
+    max-height: none;
+  }
+
+  /* Modals: fit the viewport, header + footer stay visible, body scrolls */
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    margin: 12px;
+  }
+
+  .modal-header,
+  .modal-footer {
+    flex-shrink: 0;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .modal-body {
+    flex: 1;
+    min-height: 0;
+    padding: var(--space-md);
+  }
+}
+
+/* ---------- Portrait phones: top bar + bottom tab bar ---------- */
+@media (max-width: 768px) and (orientation: portrait),
+(max-width: 768px) and (min-height: 501px) {
+  :root {
+    --navbar-height: calc(52px + var(--safe-area-inset-top));
+    --tabbar-height: calc(58px + var(--safe-area-inset-bottom));
+  }
+
+  .navbar {
+    height: var(--navbar-height);
+    padding: var(--safe-area-inset-top) var(--space-sm) 0 var(--space-md);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .brand-text {
+    font-size: 1.15rem;
+  }
+
+  .version-badge {
+    margin-left: 2px;
+  }
+
+  /* Bottom tab bar */
+  .navbar-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--tabbar-height);
+    padding: 0 var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 0;
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border);
+    z-index: 100;
+  }
+
+  .navbar-menu .nav-link {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 2px;
+    border-radius: 0;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .navbar-menu .nav-link span:not(.nav-icon) {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .navbar-menu .nav-link .nav-icon {
+    display: flex;
+    font-size: 1.35rem;
+  }
+
+  .navbar-menu .nav-link.active {
+    background: transparent;
+    color: var(--color-accent);
+  }
+
+  .navbar-menu .nav-link.active .nav-icon {
+    background: var(--color-accent-dim);
+    border-radius: var(--radius-full);
+    padding: 2px 14px;
+  }
+
+  /* "Now playing" pill floats just above the tab bar */
+  .now-playing-indicator {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    max-width: calc(100vw - 32px);
+    padding: 8px 16px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .now-playing-indicator:hover {
+    transform: translateX(-50%);
+  }
+
+  /* Content sits between the top bar and the tab bar */
+  .main-content {
+    padding-bottom: var(--tabbar-height);
+  }
+
+  /* Live TV: player on top, channel list below */
+  .home-layout {
+    flex-direction: column;
+  }
+
+  .player-section {
+    order: -1;
+    flex: none;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 45%;
+  }
+
+  .video-container {
+    flex: 1;
+  }
+
+  .channel-toggle-btn,
+  .channel-sidebar-overlay,
+  .channel-sidebar-overlay.active {
+    display: none !important;
+  }
+
+  .channel-sidebar,
+  .channel-sidebar.collapsed {
+    position: static;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    transform: none;
+    visibility: visible;
+    border-right: none;
+    box-shadow: none;
+  }
+
+  .channel-sidebar.collapsed .sidebar-header,
+  .channel-sidebar.collapsed .channel-list {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .channel-item {
+    min-height: 52px;
+  }
+
+  /* Channel name/program is already in the list and the control bar */
+  .now-playing-overlay {
+    display: none;
+  }
+
+  /* The video area is not at the screen edge, so no safe-area padding inside it */
+  #player-controls-overlay {
+    bottom: 0;
+    padding-bottom: 0 !important;
+  }
+
+  .watch-overlay {
+    padding-bottom: 0 !important;
+  }
+
+  .watch-top-bar {
+    padding-top: var(--space-sm);
+  }
+
+  .watch-center-play {
+    width: 56px;
+    height: 56px;
+  }
+
+  /* Movie/series player: 16:9 on top, details scroll below */
+  .watch-video-section {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    max-height: 60%;
+  }
+
+  .watch-next-episode {
+    top: auto;
+    bottom: 96px;
+    left: var(--space-sm);
+    right: var(--space-sm);
+    padding: var(--space-sm);
+  }
+
+  .watch-details-section {
+    padding: var(--space-md);
+  }
+
+  .watch-bottom-bar {
+    padding-bottom: var(--space-xs);
+  }
+}
+
+/* ---------- Landscape phones: navigation rail + full-height content ---------- */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --navbar-height: 0px;
+    --rail-width: calc(64px + var(--safe-area-inset-left));
+  }
+
+  #app {
+    flex-direction: row;
+  }
+
+  .navbar {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--space-xs);
+    width: var(--rail-width);
+    height: 100%;
+    flex-shrink: 0;
+    padding: calc(var(--space-sm) + var(--safe-area-inset-top)) 0 calc(var(--space-sm) + var(--safe-area-inset-bottom)) var(--safe-area-inset-left);
+    border-bottom: none;
+    border-right: 1px solid var(--color-border);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .navbar-brand {
+    justify-content: center;
+    padding: 2px 0 var(--space-xs);
+  }
+
+  .brand-text,
+  .version-badge {
+    display: none;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .navbar-menu {
+    order: 1;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 2px;
+    width: 100%;
+  }
+
+  .navbar-actions {
+    order: 2;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .navbar-actions .nav-action {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Make room for the "now playing" button */
+  .navbar:has(.now-playing-indicator:not(.hidden)) .navbar-brand {
+    display: none;
+  }
+
+  .navbar-menu .nav-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    padding: 4px 2px;
+    margin: 0 6px;
+    border-radius: var(--radius-md);
+    font-size: 0.62rem;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .navbar-menu .nav-link span:not(.nav-icon) {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .navbar-menu .nav-link .nav-icon {
+    display: flex;
+    font-size: 1.3rem;
+  }
+
+  /* Now playing: compact icon button at the top of the rail */
+  .now-playing-indicator {
+    justify-content: center;
+    margin: 0 8px var(--space-xs);
+    padding: 8px 0;
+    max-width: none;
+  }
+
+  .now-playing-indicator .now-playing-text {
+    display: none;
+  }
+
+  .now-playing-indicator .now-playing-icon {
+    font-size: 14px;
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+  }
+
+  /* Live TV: full-size player, channels in a drawer */
+  .home-layout {
+    flex-direction: row;
+  }
+
+  .player-section {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .channel-toggle-btn {
+    display: flex;
+    top: calc(var(--space-sm) + var(--safe-area-inset-top));
+    left: var(--space-sm);
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    transition: opacity 0.3s ease;
+  }
+
+  .channel-toggle-btn .channel-toggle-label {
+    display: none;
+  }
+
+  .home-layout.controls-hidden .channel-toggle-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Leave room for the channels button next to the title */
+  .watch-top-bar.live-header {
+    padding-left: 64px;
+  }
+
+  .channel-sidebar,
+  .channel-sidebar.collapsed {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(340px, 75vw);
+    height: auto;
+    padding-left: var(--safe-area-inset-left);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    visibility: hidden;
+    z-index: 120;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .channel-sidebar.active {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .channel-sidebar.collapsed .sidebar-header,
+  .channel-sidebar.collapsed .channel-list {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .channel-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 110;
+  }
+
+  .channel-sidebar-overlay.active {
+    display: block;
+  }
+
+  .sidebar-expand-btn {
+    display: none !important;
+  }
+
+  .now-playing-overlay {
+    top: auto;
+    bottom: 96px;
+    left: var(--space-md);
+    right: auto;
+    max-width: 60%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .now-playing-overlay .up-next {
+    display: none;
+  }
+
+  /* Movie/series player fills the whole height */
+  .watch-video-section {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .watch-next-episode {
+    bottom: 100px;
+  }
+
+  /* Compact headers keep more room for content */
+  .movies-controls,
+  .series-controls {
+    grid-template-columns: 1fr 1fr 1.4fr auto;
+  }
+
+  .movies-controls .source-select:nth-of-type(2),
+  .series-controls .source-select:nth-of-type(2),
+  .movies-controls .search-wrapper,
+  .series-controls .search-wrapper {
+    grid-column: auto;
+  }
+
+  .guide-controls {
+    grid-template-columns: 160px 1fr auto auto auto;
+  }
+
+  .guide-controls .search-wrapper {
+    grid-column: auto;
+  }
+
+  .settings-container {
+    padding: var(--space-md);
+  }
+}
+
+/* Very short landscape screens: icons only in the rail */
+@media (orientation: landscape) and (max-height: 380px) {
+  .navbar-menu .nav-link span:not(.nav-icon) {
+    display: none;
+  }
+
+  .navbar-menu .nav-link {
+    padding: 8px 2px;
   }
 }

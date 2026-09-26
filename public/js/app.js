@@ -30,33 +30,6 @@ class App {
         // Check authentication first
         await this.checkAuth();
 
-        // Mobile menu toggle
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const navbarMenu = document.getElementById('navbar-menu');
-
-        if (mobileMenuToggle && navbarMenu) {
-            mobileMenuToggle.addEventListener('click', () => {
-                mobileMenuToggle.classList.toggle('active');
-                navbarMenu.classList.toggle('active');
-            });
-
-            // Close menu when a nav link is clicked
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenuToggle.classList.remove('active');
-                    navbarMenu.classList.remove('active');
-                });
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.navbar')) {
-                    mobileMenuToggle.classList.remove('active');
-                    navbarMenu.classList.remove('active');
-                }
-            });
-        }
-
         // Channel drawer toggle (mobile)
         const channelToggleBtn = document.getElementById('channel-toggle-btn');
         const channelSidebar = document.getElementById('channel-sidebar');
@@ -80,6 +53,12 @@ class App {
                         channelOverlay.classList.remove('active');
                     }, 300);
                 }
+            });
+
+            // Close the drawer when the device is rotated (layout switches between stacked and drawer)
+            window.matchMedia('(orientation: portrait)').addEventListener?.('change', () => {
+                channelSidebar.classList.remove('active');
+                channelOverlay.classList.remove('active');
             });
         }
 
@@ -189,10 +168,9 @@ class App {
 
             // Hide settings for viewers
             if (this.currentUser.role === 'viewer') {
-                const settingsLink = document.querySelector('.nav-link[data-page="settings"]');
-                if (settingsLink) {
+                document.querySelectorAll('.nav-link[data-page="settings"]').forEach(settingsLink => {
                     settingsLink.style.display = 'none';
-                }
+                });
             }
 
             // Add logout button to navbar
@@ -220,7 +198,7 @@ class App {
             <span>Logout</span>
         `;
 
-        logoutLink.addEventListener('click', async (e) => {
+        const logout = async (e) => {
             e.preventDefault();
 
             const token = localStorage.getItem('authToken');
@@ -235,9 +213,24 @@ class App {
 
             localStorage.removeItem('authToken');
             window.location.replace('/login.html');
-        });
+        };
 
+        logoutLink.addEventListener('click', logout);
         navbar.appendChild(logoutLink);
+
+        // Compact icon-only copy for the phone top bar / landscape rail
+        const actions = document.getElementById('navbar-actions');
+        if (actions) {
+            const compactLogout = document.createElement('a');
+            compactLogout.href = '#';
+            compactLogout.className = 'nav-action';
+            compactLogout.id = 'logout-btn-compact';
+            compactLogout.title = 'Logout';
+            compactLogout.setAttribute('aria-label', 'Logout');
+            compactLogout.innerHTML = logoutLink.querySelector('.nav-icon').outerHTML;
+            compactLogout.addEventListener('click', logout);
+            actions.appendChild(compactLogout);
+        }
     }
 
     navigateTo(pageName, replaceHistory = false) {
@@ -254,6 +247,9 @@ class App {
             // Add new history entry
             history.pushState({ page: pageName }, '', `#${pageName}`);
         }
+
+        // Expose current page for page-specific (mobile) styling
+        document.body.dataset.page = pageName;
 
         // Update nav
         document.querySelectorAll('.nav-link').forEach(link => {

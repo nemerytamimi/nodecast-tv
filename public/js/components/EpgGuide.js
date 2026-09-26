@@ -477,6 +477,18 @@ class EpgGuide {
 
         // No need for horizontal scroll sync anymore - header is inside scroll container
 
+        // Recalculate visible rows when the viewport size changes
+        // (device rotation, or the guide rendering while its page was hidden)
+        this._resizeObserver?.disconnect();
+        if (window.ResizeObserver) {
+            this._resizeObserver = new ResizeObserver(() => {
+                this.updateVisibleRows();
+                this.syncHeaderCornerWidth();
+                this.updateNowIndicator();
+            });
+            this._resizeObserver.observe(this.scrollContainer);
+        }
+
         // Initial render of visible rows
         this.updateVisibleRows();
 

@@ -176,14 +176,6 @@ class VideoPlayer {
             window.addEventListener('resize', updateIosUiBottom);
         }
 
-        // iOS: use custom --vh unit to avoid 100vh issues with dynamic toolbar
-        const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-        if (isIOS && this.container) {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-            this.container.style.height = 'calc(var(--vh) * 100)';
-        }
-
         // Apply safe area + iOS toolbar padding to controls overlay
         if (this.controlsOverlay) {
             this.controlsOverlay.style.paddingBottom = 'calc(env(safe-area-inset-bottom, 0px) + var(--ios-ui-bottom, 0px) + 12px)';
@@ -363,11 +355,13 @@ class VideoPlayer {
         // Overlay Auto-hide Logic
         let overlayTimeout;
         const sidebarExpandBtn = document.getElementById('sidebar-expand-btn');
+        const homeLayout = document.querySelector('.home-layout');
 
         const showOverlay = () => {
             this.controlsOverlay.classList.remove('hidden');
             this.container.style.cursor = 'default';
             sidebarExpandBtn?.classList.add('visible');
+            homeLayout?.classList.remove('controls-hidden');
             resetOverlayTimer();
         };
 
@@ -376,6 +370,7 @@ class VideoPlayer {
                 this.controlsOverlay.classList.add('hidden');
                 this.container.style.cursor = 'none';
                 sidebarExpandBtn?.classList.remove('visible');
+                homeLayout?.classList.add('controls-hidden');
             }
         };
 
