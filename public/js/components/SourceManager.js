@@ -692,8 +692,9 @@ class SourceManager {
 
         return this.treeData.groups
             .map(group => {
-                // Check if group name matches
-                const groupMatches = group.name.toLowerCase().includes(this.searchQuery);
+                // Check if group name matches (not for the synthetic "Categories" wrapper
+                // used by movies/series - there only the category names count)
+                const groupMatches = !group.isRoot && group.name.toLowerCase().includes(this.searchQuery);
 
                 // Filter items that match
                 const matchingItems = group.items.filter(item =>
@@ -702,7 +703,7 @@ class SourceManager {
 
                 // Include group if name matches OR has matching items
                 if (groupMatches || matchingItems.length > 0) {
-                    return { ...group, items: groupMatches ? group.items : matchingItems };
+                    return { ...group, items: groupMatches ? group.items : matchingItems, matchedByName: groupMatches };
                 }
                 return null;
             })
@@ -714,6 +715,7 @@ class SourceManager {
      */
     renderTree() {
         const groups = this.getFilteredGroups();
+        this.updateBulkButtons(groups);
 
         if (!groups.length) {
             const msg = this.searchQuery ? 'No matches found' : 'No content found';
@@ -726,6 +728,39 @@ class SourceManager {
 
         // Attach event listeners
         this.attachTreeListeners(this.contentTree);
+    }
+
+    /**
+     * Label Show/Hide All buttons by scope: everything, or only the search results
+     */
+    updateBulkButtons(filteredGroups) {
+        const showBtn = document.getElementById('content-show-all');
+        const hideBtn = document.getElementById('content-hide-all');
+        if (!showBtn || !hideBtn) return;
+
+        if (this.searchQuery) {
+            const count = filteredGroups.reduce((sum, g) => sum + g.items.length, 0);
+            showBtn.textContent = `Show Filtered (${count})`;
+            hideBtn.textContent = `Hide Filtered (${count})`;
+            showBtn.title = 'Show only the items matching the current search';
+            hideBtn.title = 'Hide only the items matching the current search';
+            showBtn.disabled = hideBtn.disabled = count === 0;
+        } else {
+            showBtn.textContent = 'Show All';
+            hideBtn.textContent = 'Hide All';
+            showBtn.title = 'Show everything in this source';
+            hideBtn.title = 'Hide everything in this source';
+            showBtn.disabled = hideBtn.disabled = false;
+        }
+    }
+
+    /**
+     * Get the hidden-set key type for a group's own category entry
+     */
+    getGroupItemType() {
+        if (this.treeData?.type === 'movies') return 'vod_category';
+        if (this.treeData?.type === 'series') return 'series_category';
+        return 'group';
     }
 
     /**
@@ -871,6 +906,7 @@ class SourceManager {
                 id: 'all_categories',
                 name: 'Categories',
                 type: 'group',
+                isRoot: true,
                 items: categories.sort((a, b) => a.category_name.localeCompare(b.category_name)).map(cat => ({
                     id: String(cat.category_id),
                     name: cat.category_name,
@@ -919,6 +955,7 @@ class SourceManager {
                 id: 'all_series_categories',
                 name: 'Categories',
                 type: 'group',
+                isRoot: true,
                 items: categories.sort((a, b) => a.category_name.localeCompare(b.category_name)).map(cat => ({
                     id: String(cat.category_id),
                     name: cat.category_name,
@@ -1022,9 +1059,14 @@ class SourceManager {
     async setAllVisibility(visible) {
         if (!this.treeData || !this.treeData.groups) return;
 
+        // With an active search, only act on what the search shows
+        if (this.searchQuery) {
+            return this.setFilteredVisibility(visible);
+        }
+
         const saveBtn = document.getElementById('content-save');
-        const showAllBtn = document.querySelector('.content-actions button:first-child');
-        const hideAllBtn = document.querySelector('.content-actions button:nth-child(2)');
+        const showAllBtn = document.getElementById('content-show-all');
+        const hideAllBtn = document.getElementById('content-hide-all');
 
         // Disable buttons during operation
         if (showAllBtn) showAllBtn.disabled = true;
@@ -1091,6 +1133,108 @@ class SourceManager {
         } finally {
             if (showAllBtn) showAllBtn.disabled = false;
             if (hideAllBtn) hideAllBtn.disabled = false;
+        }
+    }
+
+    /**
+     * Show/hide only the items matching the current search and IMMEDIATELY persist.
+     * - Group matched by name: the whole group (category + all its items)
+     * - Otherwise: just the matching items
+     * Unsaved changes outside the search results are left pending.
+     */
+    async setFilteredVisibility(visible) {
+        const groups = this.getFilteredGroups();
+        if (!groups.length) return;
+
+        const sourceId = this.treeData.sourceId;
+        const groupItemType = this.getGroupItemType();
+        const changes = new Map(); // key -> { sourceId, itemType, itemId }
+
+        const add = (itemType, itemId) => {
+            changes.set(`${itemType}:${itemId}`, { sourceId, itemType, itemId: String(itemId) });
+        };
+
+        groups.forEach(group => {
+            if (group.matchedByName && group.categoryId) {
+                // Category entry - the server cascades this to every item in it
+                add(groupItemType, group.categoryId);
+            }
+            group.items.forEach(item => add(item.type, item.id));
+        });
+
+        const saveBtn = document.getElementById('content-save');
+        const showBtn = document.getElementById('content-show-all');
+        const hideBtn = document.getElementById('content-hide-all');
+        const count = groups.reduce((sum, g) => sum + g.items.length, 0);
+
+        if (showBtn) showBtn.disabled = true;
+        if (hideBtn) hideBtn.disabled = true;
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = visible ? `⏳ Showing ${count}...` : `⏳ Hiding ${count}...`;
+        }
+
+        try {
+            const items = [...changes.values()];
+            const apiFn = visible ? API.channels.bulkShow : API.channels.bulkHide;
+            const BATCH_SIZE = 5000;
+            for (let i = 0; i < items.length; i += BATCH_SIZE) {
+                await apiFn(items.slice(i, i + BATCH_SIZE));
+            }
+
+            // Update local + saved state for exactly the keys we persisted
+            for (const key of changes.keys()) {
+                if (visible) {
+                    this.hiddenSet.delete(key);
+                    this.originalHiddenSet.delete(key);
+                } else {
+                    this.hiddenSet.add(key);
+                    this.originalHiddenSet.add(key);
+                }
+            }
+
+            await this.syncChannelList();
+            this.renderTree();
+
+            if (saveBtn) {
+                saveBtn.textContent = '✓ Done!';
+                setTimeout(() => {
+                    saveBtn.textContent = '💾 Save Changes';
+                    saveBtn.disabled = false;
+                }, 1500);
+            }
+        } catch (err) {
+            console.error('Error setting filtered visibility:', err);
+            alert('Failed: ' + err.message);
+            if (saveBtn) {
+                saveBtn.textContent = '💾 Save Changes';
+                saveBtn.disabled = false;
+            }
+            this.updateBulkButtons(this.getFilteredGroups());
+        }
+    }
+
+    /**
+     * Refresh the Live TV channel list after visibility changes
+     */
+    async syncChannelList() {
+        try {
+            const channelList = window.app?.channelList;
+            if (!channelList) return;
+
+            if (channelList.loadHiddenItems) {
+                await channelList.loadHiddenItems();
+            }
+
+            // Hidden categories change the group list, so reload the active source fully
+            if (channelList.currentSourceId &&
+                String(channelList.currentSourceId) === String(this.contentSourceSelect?.value)) {
+                await channelList.loadSource(channelList.currentSourceId);
+            } else {
+                channelList.render();
+            }
+        } catch (e) {
+            console.warn('[SourceManager] Channel list sync failed:', e);
         }
     }
 
