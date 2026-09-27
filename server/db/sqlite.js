@@ -40,6 +40,8 @@ function initSchema() {
             data JSON -- Extra provider data
         );
         CREATE INDEX IF NOT EXISTS idx_categories_source_type ON categories(source_id, type);
+        -- Hide/show a single category (content manager)
+        CREATE INDEX IF NOT EXISTS idx_categories_source_type_cat ON categories(source_id, type, category_id);
     `);
 
     // Playlist Items (Channels, Movies, Series, Episodes)
@@ -71,6 +73,10 @@ function initSchema() {
         );
         CREATE INDEX IF NOT EXISTS idx_items_source_type ON playlist_items(source_id, type);
         CREATE INDEX IF NOT EXISTS idx_items_category ON playlist_items(source_id, category_id);
+        -- Per-item lookups/updates: bulk hide/show (source_id, type, item_id) and
+        -- M3U stream URL lookup (source_id, item_id). Without it each update scans
+        -- every item of the source.
+        CREATE INDEX IF NOT EXISTS idx_items_source_item ON playlist_items(source_id, item_id, type);
     `);
 
     // EPG Programs
