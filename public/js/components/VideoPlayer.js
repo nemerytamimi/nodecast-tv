@@ -405,6 +405,22 @@ class VideoPlayer {
         // Initial state
         updatePlayUI();
         updateVolumeUI();
+
+        // Cast / AirPlay
+        window.Cast?.register({
+            video: this.video,
+            container: this.container,
+            button: document.getElementById('btn-cast'),
+            menuItem: document.getElementById('btn-cast-menu'),
+            getHls: () => this.hls,
+            clearHls: () => { this.hls = null; },
+            getMedia: () => this.currentChannel ? {
+                title: this.currentChannel.name || this.currentChannel.tvgName || 'Live TV',
+                subtitle: this.nowPlaying?.querySelector('.program-title')?.textContent || '',
+                image: this.currentChannel.tvgLogo || null,
+                live: true
+            } : null
+        });
     }
 
     /**
@@ -947,7 +963,7 @@ class VideoPlayer {
                 // But for minimize drift, I'll copy the block logic for HLS playback init
                 // Actually, I can just fall through if I set looksLikeHls = true?
                 // No, play logic is sequential.
-                if (Hls.isSupported()) {
+                if (Hls.isSupported() && !window.Cast?.preferNativeHls(this.video)) {
                     // Start HLS
                     // ... this repeats code. I should probably just set currentUrl and let HLS block handle?
                     // But HLS block is lower down.
@@ -974,6 +990,10 @@ class VideoPlayer {
 
                     return; // Exit
                 }
+
+                // No hls.js, or AirPlay active: play the transcoded HLS natively (Safari)
+                this.playNative(playlistUrl);
+                return;
             }
 
             // CHECK: Force Audio Transcode (Copy Video) - legacy forceTranscode setting
@@ -1058,7 +1078,8 @@ class VideoPlayer {
             }
 
             // Priority 1: Use HLS.js for HLS streams on browsers that support it
-            if (looksLikeHls && Hls.isSupported()) {
+            // (While AirPlaying, Safari must play HLS natively - handled by the next branch)
+            if (looksLikeHls && Hls.isSupported() && !window.Cast?.preferNativeHls(this.video)) {
                 this.updateTranscodeStatus('direct', 'Direct HLS');
 
                 // Use playHls helper logic here (or extract it)
@@ -1169,6 +1190,13 @@ class VideoPlayer {
     playHls(url) {
         if (this.hls) {
             this.hls.destroy();
+            this.hls = null;
+        }
+
+        // AirPlay needs native playback (hls.js Media Source streams can't be AirPlayed)
+        if (window.Cast?.preferNativeHls(this.video)) {
+            this.playNative(url);
+            return;
         }
 
         this.hls = new Hls(this.getHlsConfig());
@@ -1187,6 +1215,16 @@ class VideoPlayer {
                 console.error('Fatal HLS error in transcode mode:', data);
                 this.hls.destroy();
             }
+        });
+    }
+
+    /**
+     * Play a URL with the browser's own player (native HLS on Safari, MP4, etc.)
+     */
+    playNative(url) {
+        this.video.src = url;
+        this.video.play().catch(e => {
+            if (e.name !== 'AbortError') console.log('Autoplay prevented:', e);
         });
     }
 

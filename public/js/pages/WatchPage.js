@@ -170,6 +170,24 @@ class WatchPage {
             }
         });
 
+        // Cast / AirPlay
+        if (this.video) {
+            window.Cast?.register({
+                video: this.video,
+                container: document.querySelector('.watch-video-section'),
+                button: document.getElementById('watch-cast'),
+                menuItem: document.getElementById('watch-cast-menu'),
+                getHls: () => this.hls,
+                clearHls: () => { this.hls = null; },
+                getMedia: () => this.content ? {
+                    title: this.content.title || '',
+                    subtitle: this.content.subtitle || '',
+                    image: this.content.poster || null,
+                    live: this.video.duration === Infinity
+                } : null
+            });
+        }
+
         // Progress bar
         this.progressSlider?.addEventListener('input', (e) => this.seek(e.target.value));
 
@@ -557,6 +575,16 @@ class WatchPage {
     playHls(url) {
         if (this.hls) {
             this.hls.destroy();
+            this.hls = null;
+        }
+
+        // AirPlay needs native playback (hls.js Media Source streams can't be AirPlayed)
+        if (window.Cast?.preferNativeHls(this.video)) {
+            this.video.src = url;
+            this.video.play().catch(e => {
+                if (e.name !== 'AbortError') console.error('[WatchPage] Autoplay error:', e);
+            });
+            return;
         }
 
         this.hls = new Hls({

@@ -5141,6 +5141,11 @@ kbd {
     transform: translateX(-50%);
   }
 
+  /* Already on the player page - the pill would only cover its buttons */
+  body[data-page="watch"] .now-playing-indicator {
+    display: none;
+  }
+
   /* Content sits between the top bar and the tab bar */
   .main-content {
     padding-bottom: var(--tabbar-height);
@@ -5493,4 +5498,110 @@ kbd {
   .navbar-menu .nav-link {
     padding: 8px 2px;
   }
+}
+
+/* =====================================================
+   Casting (AirPlay / Google Cast)
+   ===================================================== */
+
+.watch-btn.cast-btn.active {
+  color: var(--color-accent-hover);
+}
+
+/* Shown over the player while the TV is playing */
+.cast-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 15;
+  pointer-events: none;
+}
+
+.cast-overlay.hidden {
+  display: none;
+}
+
+.cast-overlay-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+  max-width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+}
+
+.cast-overlay-icon .icon {
+  width: 36px;
+  height: 36px;
+  color: var(--color-accent-hover);
+}
+
+.cast-overlay-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cast-overlay-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.cast-overlay-device {
+  font-size: 1rem;
+}
+
+.cast-overlay-title {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+.cast-overlay-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Short status messages (e.g. casting errors) */
+.cast-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-lg) + var(--safe-area-inset-bottom) + var(--tabbar-height, 0px));
+  transform: translate(-50%, 20px);
+  max-width: min(480px, calc(100vw - 32px));
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 2000;
+}
+
+.cast-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.cast-help-body p + p {
+  margin-top: var(--space-sm);
 }

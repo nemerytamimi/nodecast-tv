@@ -141,6 +141,21 @@ OIDC_CALLBACK_URL=http://localhost:3000/api/auth/oidc/callback # Adjust for your
 4.  Navigate to **Live TV**, **Movies**, or **Series** to browse your content.
 
 
+## Casting to a TV (AirPlay / Chromecast)
+
+The Live TV and movie/series players have a cast button next to fullscreen, and a **Cast / Mirror to TV** entry in the **⋮** menu.
+
+| Device / browser | What happens |
+|---|---|
+| iPhone, iPad, Mac (Safari) | **AirPlay** button - the Apple TV / AirPlay TV plays the stream itself. Changing channel keeps playing on the TV. |
+| Chrome / Edge on **HTTPS** | **Google Cast** button - a Chromecast / Google TV plays the stream itself, with a "Playing on …" card to pause or stop. Changing channel or opening a movie sends it to the TV. |
+| Chrome / Edge on plain HTTP, Firefox, others | The menu entry explains how to mirror the screen (Chrome **⋮ → Cast…**, Android **Screen Cast**, iOS **Screen Mirroring**). |
+
+Notes:
+- Open nodecast-tv using the server's **network address** (e.g. `http://192.168.1.20:3000`), not `localhost` - the TV fetches the stream from that address.
+- Chrome only allows Google Cast from secure pages, so put nodecast-tv behind an HTTPS reverse proxy (see [HTTPS / Reverse Proxy Issues](#https--reverse-proxy-issues)) to cast from Chrome. AirPlay works over plain HTTP.
+- The TV has to support the stream's codecs. If a channel needs transcoding in the browser, the TV gets the transcoded version.
+
 ## Browser Codec Support & Transcoding
 
 nodecast-tv is a web-based application. By default, **video decoding is handled by your browser**. However, the built-in **smart transcoding system** automatically converts incompatible media (e.g., HEVC video, Dolby audio) into browser-friendly formats using FFmpeg.

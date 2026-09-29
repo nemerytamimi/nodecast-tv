@@ -99,6 +99,8 @@ router.get('/:sessionId/stream.m3u8', async (req, res) => {
 
     res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
     res.setHeader('Cache-Control', 'no-cache');
+    // Cast receivers (Chromecast) load HLS from their own origin
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(playlist);
 });
 
@@ -126,6 +128,7 @@ router.get('/:sessionId/:segment', async (req, res) => {
 
     res.setHeader('Content-Type', 'video/MP2T');
     res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache forever (immutable)
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(segmentPath);
 });
 
